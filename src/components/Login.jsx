@@ -6,14 +6,15 @@ import { TextField } from "@mui/material";
 import { Button } from "@mui/material";
 import { Typography } from "@mui/material";
 import { Link } from "@mui/material";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import "../index.css";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { ContextAPI } from "../context/contextAPI";
-import { Alert } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import { Snackbar } from "@mui/material";
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -21,9 +22,11 @@ export const Login = () => {
     const [isSubmit, setIsSubmit] = useState(false);
     const [emailDoesNotMatch, setEmailDoesNotMatch] = useState(false);
     const [passwordDoesNotMatch, setPasswordDoesNotMatch] = useState(false);
+    const [vertical, setVertical] = useState("top");
+    const [horizontal, setHorizontal] = useState("right");
     const cookies = new Cookies();
     const navigate = useNavigate();
-    const { isRegistered } = useContext(ContextAPI); 
+    const { isRegistered, setIsRegistered } = useContext(ContextAPI); 
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -55,16 +58,31 @@ export const Login = () => {
         }
         setIsSubmit(true);
     };
+
+    const Alert = forwardRef(function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+    });
+
+    const handleClose = (event, reason) => {
+        if(reason === "clickaway") {
+            return;
+        }
+
+        setIsRegistered(false);
+    };
+
     return (
         <Container>
             <Stack direction="column">
             {isRegistered && (
-            <Stack direction="row" justifyContent="center" mt={5}>
-                <Alert severity="success">Cadastro realizado com sucesso</Alert>
-            </Stack>
-            )}
+                <Snackbar autoHideDuration={6000} anchorOrigin={{ vertical, horizontal }} open={isRegistered} onClose={handleClose} key={vertical + horizontal}>
+                <Alert onClose={handleClose} severity="success">
+                    Cadastro realizado com sucesso!
+                </Alert>
+            </Snackbar>
+            )}     
             <Grid container justifyContent="center">
-                <Box component="form" onSubmit={(e) => handleSubmit(e)} mt={isRegistered ? 3 : 12} sx={{
+                <Box component="form" onSubmit={(e) => handleSubmit(e)} mt={12} sx={{
                     width: 500,
                     height: 330,
                     p: 5,
